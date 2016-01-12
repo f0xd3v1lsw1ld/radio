@@ -20,10 +20,9 @@ icons = []                  # This list gets populated at startup
 channel_pos = 0             # Current position in playlist, default = 0
 running = False             # pygame running identification
 textsize = 20               # character size of textbox
-channelName = ["Apollo Radio", "MDR Figaro", "Hits 4 Kids", "MDR Jump"]
+channelName = ["Apollo Radio", "MDR Figaro", "MDR Jump"]
 channelLink = ["http://apollo-stream.primacom.net:6300",
                "http://c22033-l.i.core.cdn.streamfarm.net/22007mdrfigaro/live/3087mdr_figaro/live_de_128.mp3",
-               "http://mp3.ffh.de/ffhchannels/hqhits4kids.mp3",
                "http://c22033-l.i.core.cdn.streamfarm.net/22004mdrjump/live/3087mdr_jump/live_de_128.mp3"]
 
 # UI callbacks -------------------------------------------------------------
@@ -48,12 +47,13 @@ def playCallback():
         buttons[screenMode][2].draw(screen)
         pygame.display.update()
         playMode = 1
+        logging.debug("bevor")
         try:
             subprocess.check_output("mpc play", shell=True, stderr=subprocess.STDOUT)
-        except Exception:
-            logging.error("mpc play")
+        except Exception as e:
+            logging.error("mpc play "+str(e))
             pass
-
+        logging.debug('after')
         display_channel()
         pygame.time.set_timer(USEREVENT + 1, 1000)
     elif playMode is 1:
@@ -64,8 +64,8 @@ def playCallback():
         playMode = 0
         try:
             subprocess.check_output("mpc stop", shell=True, stderr=subprocess.STDOUT)
-        except Exception:
-            logging.error("mpc stop")
+        except Exception as e:
+            logging.error("mpc stop "+str(e))
             pass
         pygame.time.set_timer(USEREVENT + 1, 0)
     else:
@@ -132,8 +132,8 @@ def nextCallback():
         try:
             subprocess.check_output("mpc next", shell=True, stderr=subprocess.STDOUT)
             display_playlist()
-        except Exception:
-            logging.error("mpc next")
+        except Exception as e:
+            logging.error("mpc next "+str(e))
             pass
         display_channel()
     else:
@@ -271,8 +271,8 @@ def display_channel():
         channel = channelName[int(channel) - 1]
         logging.debug(channel)
         textboxes[0][0].draw(channel, textsize, 64, 64)
-    except Exception:
-        logging.error("mpc status")
+    except Exception as e:
+        logging.error("mpc status "+str(e))
         textboxes[0][0].draw("display channel", textsize, 64, 64)
         pass
     display_volume()
@@ -288,9 +288,10 @@ def display_volume():
         strvolume = subprocess.check_output("mpc status | grep volume", shell=True, stderr=subprocess.STDOUT)
         strvolume = strvolume[7:strvolume.find("%") + 1]
         textboxes[0][2].draw(strvolume, textsize, 64, 104)
+        logging.debug(strvolume)
         volume = int(strvolume[:-1])
-    except Exception:
-        logging.error("mpc status")
+    except Exception as e:
+        logging.error("mpc status "+str(e))
         textboxes[0][2].draw("display volume", textsize, 64, 104)
         pass
 
@@ -303,8 +304,8 @@ def display_playlist():
         playlist = subprocess.check_output("mpc status | grep playing", shell=True, stderr=subprocess.STDOUT)
         playlist = playlist[playlist.find("#") + 1:playlist.find("/") + 2]
         textboxes[0][1].draw(playlist, textsize, 64, 84)
-    except Exception:
-        logging.error("mpc status")
+    except Exception as e:
+        logging.error("mpc status "+str(e))
         textboxes[0][1].draw("display playlist", textsize, 64, 84)
         pass
 
@@ -319,8 +320,8 @@ def display_playtime():
             playtime = playtime[playtime.find("/") + 2:]
             playtime = playtime[playtime.find(" "):playtime.find("/")]
             textboxes[0][3].draw(playtime, textsize, 64, 124)
-        except Exception:
-            logging.error("mpc status")
+        except Exception as e:
+            logging.error("mpc status " + str(e))
             textboxes[0][3].draw("display playtime", textsize, 64, 124)
             pass
 
